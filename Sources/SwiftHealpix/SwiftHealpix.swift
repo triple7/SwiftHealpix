@@ -14,7 +14,7 @@ public typealias HP = Healpix
 public final class Healpix {
     private let NSIDELIST:[Int] = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216]
     private let NS_MAX = 16777216
-static let ORDER_MAX = 24
+public static let ORDER_MAX = 24
     static let PI2 = 2 * Double.pi
     static let PI = Double.pi
 static let PI_2 = Double.pi / 2
