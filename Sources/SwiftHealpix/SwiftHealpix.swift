@@ -321,6 +321,9 @@ static let PI_2 = Double.pi / 2
             return Double.pi / Double(3*nside*nside)
         }
              
+    public final class func pixArea2Nside(_ pixArea: Double)->Int {
+   return Int(sqrt(Double.pi / Double(3*pixArea)))
+}
              public final class func nside2Resol(_ nside: Int)->Double {
             return sqrt(Double.pi/3) / Double(nside)
         }
