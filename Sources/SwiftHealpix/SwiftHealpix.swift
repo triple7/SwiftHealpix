@@ -9,7 +9,7 @@ import Foundation
 import simd
 import BigInt
 
-final class Healpix {
+public final class Healpix {
     private let NSIDELIST:[Int] = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216]
     private let NS_MAX = 16777216
 static let ORDER_MAX = 24
@@ -21,48 +21,48 @@ static let PI_2 = Double.pi / 2
 
     private let nside:Int!
     
-    init(_ nside: Int) {
+    public init(_ nside: Int) {
         self.nside = nside
     }
     
-    final class func order2Nside(_ order: Int)->Int {
+    public final class func order2Nside(_ order: Int)->Int {
         return 1 << order
     }
 
-    final class func nside2Order(_ nside: Int)->Int {
+    public final class func nside2Order(_ nside: Int)->Int {
         return Int(log2(Float(nside)))
     }
     
-    final class func nside2Npix(_ nside: Int)->Int {
+    public final class func nside2Npix(_ nside: Int)->Int {
         return 12*nside*nside
     }
     
-    final class func vec2Pix_nest(_ nside: Int, _ v: simd_double3)->Int {
+    public final class func vec2Pix_nest(_ nside: Int, _ v: simd_double3)->Int {
         let za = Healpix.vec2Za(v)
         return Healpix.za2Pix_nest(nside, za)
     }
     
-    final class func vec2Pix_ring(_ nside: Int, _ v: simd_double3)->Int {
+    public final class func vec2Pix_ring(_ nside: Int, _ v: simd_double3)->Int {
         let za = Healpix.vec2Za(v)
         return Healpix.nest2Ring(nside, Healpix.za2Pix_nest(nside, za))
     }
     
-    final class func ang2Pix_nest(_ nside: Int, _ theta: Double, _ phi: Double)->Int {
+    public final class func ang2Pix_nest(_ nside: Int, _ theta: Double, _ phi: Double)->Int {
         let z = cos(theta)
         return Healpix.za2Pix_nest(nside, simd_double2([z, phi]))
     }
     
-    final class func ang2Pix_ring(_ nside: Int, _ theta: Double, _ phi: Double)->Int {
+    public final class func ang2Pix_ring(_ nside: Int, _ theta: Double, _ phi: Double)->Int {
         let z = cos(theta)
         return Healpix.nest2Ring(nside, Healpix.za2Pix_nest(nside, simd_double2([z, phi])))
     }
     
-    final class func nest2Ring(_ nside: Int, _ ipix: Int)->Int {
+    public final class func nest2Ring(_ nside: Int, _ ipix: Int)->Int {
         let fxy = Healpix.nest2Fxy(nside, ipix)
         return Healpix.fxy2Ring(nside, fxy)
     }
     
-    final class func ring2Nest(_ nside: Int, _ ipix: Int)->Int {
+    public final class func ring2Nest(_ nside: Int, _ ipix: Int)->Int {
         if nside == 1 {
             return ipix
         }
@@ -70,7 +70,7 @@ static let PI_2 = Double.pi / 2
         return Healpix.fxy2Nest(nside, fxy)
     }
 
-    final class func ring2Fxy(_ nside: Int, _ ipix: Int)->simd_int3 {
+    public final class func ring2Fxy(_ nside: Int, _ ipix: Int)->simd_int3 {
         let polarLimit = 2*nside*(nside - 1)
         if ipix < polarLimit {
             let ipix = Double(ipix)
@@ -116,25 +116,25 @@ static let PI_2 = Double.pi / 2
         }
     }
 
-    final class func pix2Vec_nest(_ nside: Int, _ ipix: Int)->simd_double3 {
+    public final class func pix2Vec_nest(_ nside: Int, _ ipix: Int)->simd_double3 {
         let fxy = Healpix.nest2Fxy(nside, ipix)
         let tu = Healpix.fxy2Tu(nside, fxy)
         let za = Healpix.tu2Za(tu)
         return Healpix.za2Vec(za)
     }
     
-    final class func pix2Ang_nest(_ nside: Int, _ ipix: Int)->simd_double2 {
+    public final class func pix2Ang_nest(_ nside: Int, _ ipix: Int)->simd_double2 {
         let fxy = Healpix.nest2Fxy(nside, ipix)
         let tu = Healpix.fxy2Tu(nside, fxy)
         let za = Healpix.tu2Za(tu)
         return simd_double2([acos(za.x), za.y])
     }
     
-    final class func pix2Vec_ring(_ nside: Int, _ ipix: Int)->simd_double3 {
+    public final class func pix2Vec_ring(_ nside: Int, _ ipix: Int)->simd_double3 {
         return Healpix.pix2Vec_nest(nside, Healpix.ring2Nest(nside, ipix))
     }
     
-    final class func pix2Ang_ring(_ nside: Int, _ ipix: Int)->simd_double2 {
+    public final class func pix2Ang_ring(_ nside: Int, _ ipix: Int)->simd_double2 {
         return Healpix.pix2Ang_nest(nside, Healpix.ring2Nest(nside, ipix))
     }
 
@@ -192,7 +192,7 @@ static let PI_2 = Double.pi / 2
         return output
     }
 
-    final class func max_pixrad(_ nside: Int)->Double {
+    public final class func max_pixrad(_ nside: Int)->Double {
         let nside = Double(nside)
         let unit = Healpix.PI_4 / nside
         return Healpix.angle(
@@ -201,16 +201,16 @@ static let PI_2 = Double.pi / 2
         )
     }
     
-    final class func angle(_ a: simd_double3, _ b: simd_double3)->Double {
+    public final class func angle(_ a: simd_double3, _ b: simd_double3)->Double {
         return 2*asin(sqrt(simd_distance(a, b)) / 2)
     }
     
-    final class func tu2Vec(_ tu: simd_double2)->simd_double3 {
+    public final class func tu2Vec(_ tu: simd_double2)->simd_double3 {
         let za = Healpix.tu2Za(tu)
         return Healpix.za2Vec(za)
     }
     
-    final class func walk_ring_around(_ nside: Int, _ i: Int, _ a0: Double, _ theta: Double, _ r: Double, _ cb: (Int)->[Int]) {
+    public final class func walk_ring_around(_ nside: Int, _ i: Int, _ a0: Double, _ theta: Double, _ r: Double, _ cb: (Int)->[Int]) {
         if theta < r || theta + r > Double.pi {
             return walk_ring(nside, i, cb)
         }
@@ -242,7 +242,7 @@ static let PI_2 = Double.pi / 2
         }
     }
 
-    final class func walk_ring(_ nside: Int, _ i: Int, _ cb: (Int)->[Int]) {
+    public final class func walk_ring(_ nside: Int, _ i: Int, _ cb: (Int)->[Int]) {
             let u = Healpix.PI_4 * (2 - Double(i) / Double(nside))
             let t = Healpix.PI_4 * (1 + Double(1 - i % 2) / Double(nside))
             let begin = Healpix.tu2Fxy(nside, simd_double2(t, u))
@@ -253,7 +253,7 @@ static let PI_2 = Double.pi / 2
             } while !simd_equal(s, begin)
         }
 
-    final class func center_t(_ nside: Int, _ i: Int, _ t: Double)->Double {
+    public final class func center_t(_ nside: Int, _ i: Int, _ t: Double)->Double {
         var t = Double(t)
             let d = Healpix.PI_4 / Double(nside)
             t /= d
@@ -262,7 +262,7 @@ static let PI_2 = Double.pi / 2
         }
 
     
-    final class func write_next_pixel(_ nside: Int, _ fxy: simd_int3)->simd_int3 {
+    public final class func write_next_pixel(_ nside: Int, _ fxy: simd_int3)->simd_int3 {
         var fxy = fxy
         fxy.y += 1
         if fxy.y == nside {
@@ -300,7 +300,7 @@ static let PI_2 = Double.pi / 2
         return fxy
     }
     
-    final class func corners_nest(_ ipix: Int, _ nside: Int)->[simd_int3] {
+    public final class func corners_nest(_ ipix: Int, _ nside: Int)->[simd_int3] {
         let fxy = Healpix.nest2Fxy(nside, ipix)
         let tu = Healpix.fxy2Tu(nside, fxy)
         let d = Healpix.PI_4 / Double(nside)
@@ -313,19 +313,19 @@ static let PI_2 = Double.pi / 2
     }
              
 
-    final class func corners_ring(_ nside: Int, _ ipix: Int)->[simd_int3] {
+    public final class func corners_ring(_ nside: Int, _ ipix: Int)->[simd_int3] {
             return Healpix.corners_nest(nside, Healpix.ring2Nest(nside, ipix))
         }
              
-             final class func nside2PixArea(_ nside: Int)->Double {
+             public final class func nside2PixArea(_ nside: Int)->Double {
             return Double.pi / Double(3*nside*nside)
         }
              
-             final class func nside2Resol(_ nside: Int)->Double {
+             public final class func nside2Resol(_ nside: Int)->Double {
             return sqrt(Double.pi/3) / Double(nside)
         }
              
-             final class func pixCoord2Vec_nest(_ nside: Int, _ ipix: Int, _ ne: Int, _ nw: Int)->simd_int3 {
+             public final class func pixCoord2Vec_nest(_ nside: Int, _ ipix: Int, _ ne: Int, _ nw: Int)->simd_int3 {
             let fxy = Healpix.nest2Fxy(nside, ipix)
             let tu = Healpix.fxy2Tu(nside, fxy)
             let d = Healpix.PI_4 / Double(nside)
@@ -334,18 +334,18 @@ static let PI_2 = Double.pi / 2
                  return simd_int3(Int32(v.x), Int32(v.y), Int32(v.z))
         }
 
-             final class func pixCoord2Vec_ring(_ nside: Int, _ ipix: Int, _ ne: Int, _ nw: Int)->simd_int3 {
+             public final class func pixCoord2Vec_ring(_ nside: Int, _ ipix: Int, _ ne: Int, _ nw: Int)->simd_int3 {
             return Healpix.pixCoord2Vec_nest(nside, Healpix.ring2Nest(nside, ipix), ne, nw)
         }
              
-             final class func za2Pix_nest(_ nside: Int, _ za: simd_double2)->Int {
+             public final class func za2Pix_nest(_ nside: Int, _ za: simd_double2)->Int {
             let tu = Healpix.za2Tu(za)
             let fxy = Healpix.tu2Fxy(nside, tu)
             return Healpix.fxy2Nest(nside, fxy)
         }
              
              
-             final class func tu2Fxy(_ nside: Int, _ tu: simd_double2)->simd_int3 {
+             public final class func tu2Fxy(_ nside: Int, _ tu: simd_double2)->simd_int3 {
             let fpq = Healpix.tu2Fpq(tu)
                  let x = Healpix.clip(nside * Int(fpq.y), 0, nside - 1)
             let y = Healpix.clip(nside * Int(fpq.z), 0, nside - 1)
@@ -360,7 +360,7 @@ static let PI_2 = Double.pi / 2
         return (a < 0) ? b - a.remainder(dividingBy: b) : a.remainder(dividingBy: b)
            }
 
-             final class func sigma(_ z: Double)->Double {
+             public final class func sigma(_ z: Double)->Double {
             if z < 0 {
                 return -Healpix.sigma(-z)
             } else {
@@ -368,7 +368,7 @@ static let PI_2 = Double.pi / 2
             }
         }
 
-             final class func za2Tu(_ za: simd_double2)->simd_double2 {
+             public final class func za2Tu(_ za: simd_double2)->simd_double2 {
             if abs(za.x) <= 2/3 {
                 return simd_double([za.y, 3*Healpix.PI_8*za.x])
             } else {
@@ -380,7 +380,7 @@ static let PI_2 = Double.pi / 2
             }
         }
 
-             final class func tu2Za(_ tu: simd_double2)->simd_double2 {
+             public final class func tu2Za(_ tu: simd_double2)->simd_double2 {
             let abs_u = abs(tu.y)
             if abs_u >= Healpix.PI_2 { // error
                 return simd_double2([Healpix.sign(tu.y), 0])
@@ -399,7 +399,7 @@ static let PI_2 = Double.pi / 2
             }
         }
 
-    final class func vec2Za(_ v: simd_double3)->simd_double2 {
+    public final class func vec2Za(_ v: simd_double3)->simd_double2 {
         let w = v*v
         let r2 = w.x + w.y
         if r2 == 0 {
@@ -412,24 +412,24 @@ static let PI_2 = Double.pi / 2
         }
     }
 
-    final class func za2Vec(_ za: simd_double2)->simd_double3 {
+    public final class func za2Vec(_ za: simd_double2)->simd_double3 {
         let sin_theta = sqrt(1 - za.x*za.x)
         let X = sin_theta*cos(za.y)
         let Y = sin_theta*sin(za.y)
         return simd_double3([X, Y, za.x])
     }
 
-    final class func ang2Vec(_ theta: Double, _ phi: Double)->simd_double3 {
+    public final class func ang2Vec(_ theta: Double, _ phi: Double)->simd_double3 {
         let z = cos(theta)
         return Healpix.za2Vec(simd_double2(z, phi))
     }
     
-    final class func vec2Ang(_ v: simd_double3)->simd_double2 {
+    public final class func vec2Ang(_ v: simd_double3)->simd_double2 {
         let za = Healpix.vec2Za(v)
         return   simd_double2([acos(za.x), za.y])
     }
 
-    final class func tu2Fpq(_ tu: simd_double2)->simd_int3 {
+    public final class func tu2Fpq(_ tu: simd_double2)->simd_int3 {
         var tu = tu
         tu.x = tu.x/Healpix.PI_4
         tu.y = Healpix.PI_4
@@ -452,7 +452,7 @@ static let PI_2 = Double.pi / 2
         };
 
     // BigInt
-    final class func fxy2Nest(_ nside: Int, _ fxy: simd_int3)->Int {
+    public final class func fxy2Nest(_ nside: Int, _ fxy: simd_int3)->Int {
         return Int(fxy.x)*nside*nside + Healpix.bit_combine(Int(fxy.y), Int(fxy.z))
     }
     
@@ -465,7 +465,7 @@ static let PI_2 = Double.pi / 2
 n = 25
 s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 ** i:x})) << {i + 1}' for i in range(n)] + [f'y & BigInt(0x{2**n:x}) << {n+1}'])
 */
-    final class func bit_combine(_ x: Int, _ y: Int)->Int {
+    public final class func bit_combine(_ x: Int, _ y: Int)->Int {
         assert(x < (1 << 26), "x >= 2^26")
         assert(y < (1 << 25), "Y >= 2^25")
         return 0
@@ -475,7 +475,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
     // y = (...y2 y1 y0)_2
     // p = (...y2 x2 y1 x1 y0 x0)_2
     // returns x, y
-    final class func bit_decombine(_ p: Int)->simd_int2 {
+    public final class func bit_decombine(_ p: Int)->simd_int2 {
         assert(p <= 0x1fffffffffffff, "p >= 0x1fffffffffffff")
         return simd_int2([0, 0])
 //        var p = BigInt(p);
@@ -494,7 +494,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
     // f: baseHealpix.PIxel index
     // x: north east index in baseHealpix.PIxel
     // y: north west index in baseHealpix.PIxel
-    final class func nest2Fxy(_ nside: Int, _ ipix: Int)->simd_int3 {
+    public final class func nest2Fxy(_ nside: Int, _ ipix: Int)->simd_int3 {
         let nside2 = nside * nside
         let f = Int(ipix / nside2) // baseHealpix.PIxel index
         let k = ipix % nside2             // nestedHealpix.PIxel index in baseHealpix.PIxel
@@ -502,7 +502,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
         return simd_int3([Int32(f), xy.x, xy.y])
     };
 
-    final class func fxy2Ring(_ nside: Int, _ fxy: simd_int3)->Int {
+    public final class func fxy2Ring(_ nside: Int, _ fxy: simd_int3)->Int {
 //        var nside = BigInt(nside);
 //        var f = BigInt(f);
 //        let f_row = f / 4n; // {0 .. 2}
@@ -535,7 +535,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
     };
 
     // f, x, y -> spherical projection
-    final class func fxy2Tu(_ nside: Int, _ fxy: simd_int3)->simd_double2 {
+    public final class func fxy2Tu(_ nside: Int, _ fxy: simd_int3)->simd_double2 {
         let f = fxy.x
         let x = fxy.y
         let y = fxy.z
@@ -552,7 +552,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
         return simd_double2([t, u])
     };
 
-    final class func orderPix2Uniq(_ order: Int, _ ipix: Int)->Int {
+    public final class func orderPix2Uniq(_ order: Int, _ ipix: Int)->Int {
             /**
              * Pack `(order, ipix)` into a `uniq` integer.
              *
@@ -569,7 +569,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
      *
      * Inverse of `orderpix2uniq`.
      */
-    final class func uniq2OrderPix(_ uniq: Int)->simd_int2 {
+    public final class func uniq2OrderPix(_ uniq: Int)->simd_int2 {
             assert(uniq <= 0x1fffffffffffff, "unique pix ID \(uniq) >= 0x1fffffffffffff")
 //            var uniq = BigInt(uniq);
 //            let order = 0n;
@@ -583,7 +583,7 @@ s = ' | '.join(['x & 1'] + [f'(x & BigInt(0x{2 ** (i+1):x}) | y & BigInt(0x{2 **
         return simd_int2([0, 0])
         };
 
-    final class func sign(_ a: Double)->Double {
+    public final class func sign(_ a: Double)->Double {
         return (a > 0) ? 1 : (a < 0) ? -1 : 0
     }
     
